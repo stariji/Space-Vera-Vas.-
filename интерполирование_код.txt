@@ -1,0 +1,250 @@
+
+%---------------------------------------
+%-------------   Part 1   --------------
+%---------------------------------------
+%x = [2,3,5];
+%y = [4,1,7];
+
+y = [4;1;7];
+A = [1,2,4;1,3,9;1,5,25];
+detA = det(A)
+
+c = inv(A)*y
+newX = 4;
+newY = c(1) + c(2)*newX + c(3)*newX^2
+
+%lagrange
+function result = MyLgr(newX,x,y)
+  result = 0;
+  n = length(x);
+  for i = 1:n
+    p = y(i);
+    for j = 1:n
+      if (i ~= j)
+        p = p*((newX-x(j))/(x(i)-x(j)));
+      endif
+    endfor
+    result = result + p;
+  endfor
+end
+
+x = [2,3,5];
+y = [4,1,7];
+yNew = MyLgr(4,x,y)
+
+%newton
+A0 = y(1)
+A1 = (y(2)-A0)/(x(2)-x(1))
+A2 = (y(3) - A0 - A1*(x(3)-x(1)))/((x(3)-x(1))*(x(3)-x(2)))
+
+newX = 4;
+newY = A0 + A1*(newX - x(1)) + A2*(newX-x(1))*(newX-x(2))
+
+%---------------------------------------
+%-------------   Part 2   --------------
+%---------------------------------------
+
+disp('part 2');
+x = [0,2,4,6,8,10,12,14,16,18];
+y = [12.5,8.9,7.5,5.3,3.8,2.3,1.5,1.2,1.05,1.0];
+newX = [-1:0.1:19];
+newY = [];
+for i = 1:length(newX)
+  newY(i) = MyLgr(newX(i),x,y);
+endfor
+
+plot(x,y,'+r');
+grid on;
+hold on;
+plot(newX, newY, 'g');
+
+%---------------------------------------
+%кусочно линейная
+step = 2.0; % шаг
+newX = [0.1:0.1:17.9];
+newY = [];
+for j = 1:length(newX)
+  i = ceil((newX(j) - x(1))/step) + 1;
+  newY(j) = y(i-1)+((y(i)-y(i-1))/(x(i)-x(i-1)))*(newX(j)-x(i-1));
+endfor
+
+figure(2);
+plot(x,y,'+r');
+grid on;
+hold on;
+plot(newX, newY, 'g');
+
+%---------------------------------------
+%spline
+figure(3);
+plot(x,y,'+r');
+grid on;
+hold on;
+newPP = spline(x,y);
+sCoef = newPP.coefs
+newX = [0.1:0.1:17.9];
+for j = 1:length(newX)
+  i = ceil((newX(j) - x(1))/step) + 1;
+  newY(j) = sCoef(i-1,4) + sCoef(i-1,3)*(newX(j)-x(i-1)) + sCoef(i-1,2)*(newX(j)-x(i-1))^2 + sCoef(i-1,1)*(newX(j)-x(i-1))^3;
+endfor
+plot(newX, newY, 'g');
+
+%f=a + b*(k-l) + c*(k-l)^2 + d*(k-l)^3;
+%f1 = diff(f)
+%f2 = diff(f,2)
+%f3 = diff(f,3)
+%f1 = (sym) -b + c*(-2*k + 2*l) - 3*d*(k - l)^2
+%f2 = (sym) 2*(c + 3*d*(k - l))
+%f3 = (sym) -6*d
+
+%f1 = -sCoef(i-1,3) + sCoef(i-1,2)*(-2*newX(j) + 2*x(i-1)) - 3*sCoef(i-1,1)*(newX(j) - x(i-1))^2;
+for j = 1:length(newX)
+  i = ceil((newX(j) - x(1))/step) + 1;
+  newY(j) = -sCoef(i-1,3) + sCoef(i-1,2)*(-2*newX(j) + 2*x(i-1)) - 3*sCoef(i-1,1)*(newX(j) - x(i-1))^2;
+endfor
+figure(9);
+plot(newX, newY, 'g');
+grid on;
+hold on;
+
+%f2 = 2*(sCoef(i-1,2) + 3*sCoef(i-1,1)*(newX(j) - x(i-1)));
+for j = 1:length(newX)
+  i = ceil((newX(j) - x(1))/step) + 1;
+  newY(j) = 2*(sCoef(i-1,2) + 3*sCoef(i-1,1)*(newX(j) - x(i-1)));
+endfor
+figure(10);
+plot(newX, newY, 'g');
+grid on;
+hold on;
+
+%f3 = -6*sCoef(i-1,1);
+for j = 1:length(newX)
+  i = ceil((newX(j) - x(1))/step) + 1;
+  newY(j) = -6*sCoef(i-1,1);
+endfor
+figure(11);
+plot(newX, newY, 'g');
+grid on;
+hold on;
+
+%---------------------------------------
+%-------------   Part 3   --------------
+%---------------------------------------
+
+x = [-1:0.2:1];
+y = 1 ./(1+25*x.^2);
+
+newX = [-1:0.01:1];
+newY = [];
+for i = 1:length(newX)
+  newY(i) = MyLgr(newX(i),x,y);
+endfor
+
+figure(4);
+y = 1 ./(1+25*newX.^2);
+plot(newX,y,'r');
+grid on;
+hold on;
+plot(newX, newY, 'g');
+legend({'source function', 'interpolated'});
+
+%---------------------------------------
+%-------------   Part 6   --------------
+%---------------------------------------
+y = [0,25,40,60,55,60,51,30,25,15,25,30,22];
+x = [0:5:60];
+
+%---------------------------------------
+newX = [0:0.1:60];
+newY = [];
+
+for i = 1:length(newX)
+  newY(i) = MyLgr(newX(i),x,y);
+endfor
+
+figure(5);
+plot(x,y,'+r');
+hold on;
+grid on;
+plot(newX, newY, 'g');
+legend({'Экспериментальные точки', 'Глобальная интерполяция'});
+xlabel('Время');
+ylabel('Скрость');
+
+%---------------------------------------
+step = 5.0; % шаг
+newX = [0.1:0.1:59.9];
+newY = [];
+for j = 1:length(newX)
+  i = ceil((newX(j) - x(1))/step) + 1;
+  newY(j) = y(i-1)+((y(i)-y(i-1))/(x(i)-x(i-1)))*(newX(j)-x(i-1));
+endfor
+
+figure(6);
+plot(x,y,'+r');
+grid on;
+hold on;
+plot(newX, newY, 'g');
+legend({'Экспериментальные точки', 'Кусочная интерполяция'});
+xlabel('Время');
+ylabel('Скрость');
+
+%---------------------------------------
+newPP = spline(x,y);
+sCoef = newPP.coefs;
+newX = [0.1:0.1:59.9];
+%newY = ppval(newPP,newX);
+for j = 1:length(newX)
+  i = ceil((newX(j) - x(1))/step) + 1;
+  newY(j) = sCoef(i-1,4) + sCoef(i-1,3)*(newX(j)-x(i-1)) + sCoef(i-1,2)*(newX(j)-x(i-1))^2 + sCoef(i-1,1)*(newX(j)-x(i-1))^3;
+endfor
+
+figure(7);
+plot(x,y,'+r');
+grid on;
+hold on;
+plot(newX, newY, 'g');
+legend({'Экспериментальные точки', 'Сплайн интерполяция'});
+xlabel('Время');
+ylabel('Скрость');
+
+%---------------------------------------
+yMS = (y*1000)./3600;
+S = 0;
+St = [0];
+at = [0];
+dt = 5;
+for i = 1:length(x)-1
+  a = (y(i+1) - yMS(i))/dt; % V(n+1) - V(n) / T
+  S += abs(yMS(i)*dt + (a*dt^2/2));
+  St(i+1) = S;
+  at(i+1) = a;
+endfor
+%---
+wholePath = S
+figure(8);
+plot(x,St,'b');
+legend({'Зависимость расстояния от временм'});
+xlabel('Время');
+ylabel('Расстояние');
+grid on;
+hold on;
+%---
+figure(12);
+n = 0;
+qX=[];
+qY=[];
+for i = 1:length(x)-1
+  qX(n+i) = x(i);
+  qX(n+i+1) = x(i+1);
+  qY(n+i) = at(i);
+  qY(n+i+1) = at(i);
+  n++;
+endfor
+
+plot(qX,qY,'b');
+legend({'Зависимость ускорения от временм'});
+xlabel('Время');
+ylabel('Ускорение');
+grid on;
+hold on;
