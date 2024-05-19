@@ -1,0 +1,156 @@
+disp("-------------------------------------------------");
+disp('1 part');
+warning('off', 'all');
+
+function y = inFunction(x)
+  y = e^x;
+end
+
+function result = rectMethod(a,b,n)
+  h = (b-a)/n;
+  result = 0;
+  for i = 1:n
+    result += inFunction(a + h*(i-1/2));
+  endfor
+  result = h * result;
+end
+
+function result = trapezoidMethod(a,b,n)
+  h = (b-a)/n;
+  result = 0;
+  x = [a:h:b];
+  for i = 2:n-1
+    result += inFunction(x(i));
+  endfor
+  result = h*(( inFunction(x(1)) + inFunction(x(n)) )/2 + result);
+end
+
+function result = parabolicMethod(a,b,n)
+  h = (b-a)/n;
+  result = 0;
+  x = [a:h:b];
+  for i = 2:n
+    result += inFunction(x(i-1)) + 4*inFunction(x(i) - h/2) + inFunction(x(i));
+  endfor
+  result = (h/6)*result;
+end
+% range
+a = 0;
+b = pi;
+
+% number of intervals
+n = 1;
+result = rectMethod(a,b,n);
+resultTrap = trapezoidMethod(a,b,n);
+resultParabolic = parabolicMethod(a,b,n);
+n
+result
+resultTrap
+resultParabolic
+disp("===========");
+n = 2;
+result = rectMethod(a,b,n);
+resultTrap = trapezoidMethod(a,b,n);
+resultParabolic = parabolicMethod(a,b,n);
+n
+result
+resultTrap
+resultParabolic
+disp("===========");
+n = 4;
+result = rectMethod(a,b,n);
+resultTrap = trapezoidMethod(a,b,n);
+resultParabolic = parabolicMethod(a,b,n);
+n
+result
+resultTrap
+resultParabolic
+disp("===========");
+n = 10;
+result = rectMethod(a,b,n);
+resultTrap = trapezoidMethod(a,b,n);
+resultParabolic = parabolicMethod(a,b,n);
+n
+result
+resultTrap
+resultParabolic
+disp("===========");
+n = 50;
+result = rectMethod(a,b,n);
+resultTrap = trapezoidMethod(a,b,n);
+resultParabolic = parabolicMethod(a,b,n);
+n
+result
+resultTrap
+resultParabolic
+disp("===========");
+n = 500;
+result = rectMethod(a,b,n);
+resultTrap = trapezoidMethod(a,b,n);
+resultParabolic = parabolicMethod(a,b,n);
+n
+result
+resultTrap
+resultParabolic
+
+% Part 2
+disp("-------------------------------------------------");
+disp("Part 2");
+epsilon = 1e-8;
+a = 0;
+b = 1;
+p = 2; % for trapezoid
+
+function y = inFunction(x)
+  y = x^2*sqrt(1-x^3);
+end
+
+n = 2;
+curIntegral = 0;
+while (n < 200000)
+  curIntegral = trapezoidMethod(a,b,n);
+  newIntegral = trapezoidMethod(a,b,n*2);
+  condition = abs(newIntegral - curIntegral)/(2^p - 1);
+  if (condition <= epsilon)
+    break;
+  endif
+  n*=2;
+endwhile
+n
+curIntegral
+
+% Part 3
+disp("-------------------------------------------------");
+disp("Part 3");
+% trapezoidMethod(a,b,n);
+function result = customTrapezoidMethod(x,y)
+  result = 0;
+  n = length(x);
+  h = x(2) - x(1);
+  for i = 2:n-1
+    result += y(i);
+  endfor
+  result = h*(( y(1) + y(n))/2 + result);
+end
+
+x = [];
+y = [];
+fileId = fopen('C:\Users\qwerty\Desktop\долги\diff-2.dat','r');
+if (fileId == -1)
+  disp('cannot open file');
+else
+  buffer = fscanf(fileId,'%f', [2,inf]);
+  x = buffer(1,:);
+  y = buffer(2,:);
+  fclose(fileId);
+
+  n = length(x)
+  min = x(1)
+  max = x(n)
+  result = customTrapezoidMethod(x,y)
+
+  result2 = cumtrapz(x,y);
+  matlabIntegral = result2(n)
+end
+
+
